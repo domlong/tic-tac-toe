@@ -1,5 +1,6 @@
 const gameBoard = (() => {
     let grid = new Array(9);
+    let winner = 'test failed';
 
     const play = (mark, i) => {
         if(!grid[i]) {
@@ -9,9 +10,17 @@ const gameBoard = (() => {
     };
 
     const getGrid = () => grid;
+    const getWinner = () => winner;
 
     const checkThree = (str) => {
-        return (str === 'XXX' || str === 'OOO');
+        let marks = gameEngine.getPlayerMarks();
+        for (let i=0; i<marks.length; i++) {
+            if (str === marks[i].repeat(3)) {
+                winner = i;
+                return true;
+            }
+        }
+        // return (str === 'XXX' || str === 'OOO');
     };
 
     const winState = () => {
@@ -35,22 +44,22 @@ const gameBoard = (() => {
         return false;
     }
 
-    return {getGrid, play, winState}
+    return {getWinner, getGrid, play, winState}
 })();
 
-const Player =  (num, mark) => {
-    this.num = num;
+const Player =  (mark) => {
     this.mark = mark;
-    const getNum = () => num;
     const getMark = () => mark;
-    return {getNum, getMark}
+    return {getMark}
 }
 
 const displayController = (() => {
     let squares = document.querySelectorAll('.square');
+    let announcer = document.querySelector('#announcer')
 
     const chooseSquare = (e) => {
-        console.log(e.target.dataset.index);
+        gameEngine.playRound(e.target.dataset.index);
+        updateBoard();
     }
 
     const markSquare = (mark, i) => {
@@ -61,31 +70,35 @@ const displayController = (() => {
         gameBoard.getGrid().forEach(markSquare)
     }
 
+    const announce = (text) => {
+        announcer.textContent = text;
+    }
+
     squares.forEach(square => square.addEventListener('click', chooseSquare, {'once': true}))
 
-    return {updateBoard}
+    return {updateBoard, announce}
 })();
 
 
 const gameEngine = (() => {
-    const player1 = Player(1, 'X');
-    const player2 = Player(2, 'O');
-    let currentPlayer = 1;
+    const players = [Player('X'), Player('O')];
+    let currentPlayer = 0;
 
-    gameBoard.play('X',4);
-    gameBoard.play('O',5);
-    gameBoard.play('X',1);
-    gameBoard.play('O',7);
-    gameBoard.play('X',0);
-    gameBoard.play('O',2);
-    gameBoard.play('X',7);
-    gameBoard.play('O',8);
-
-    displayController.updateBoard();
-
-    const playRound = () => {
-        
+    const playRound = (index) => {
+        gameBoard.play(players[currentPlayer].getMark(), index);
+        currentPlayer = (currentPlayer + 1) % players.length;
+        if (gameBoard.winState()) {
+            displayController.announce(`Player ${gameBoard.getWinner() + 1} wins!`)
+        }
     }
 
-    return {}
+    // const getPlayerByMark = (mark) => {
+    //     return players.findIndex(mark);
+    // }
+
+    const getPlayerMarks = () => {
+        return players.map(player => player.getMark());
+    }
+
+    return {playRound, getPlayerMarks}
 })();
