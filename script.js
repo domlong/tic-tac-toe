@@ -56,36 +56,6 @@ const Player =  (mark) => {
     return {getMark}
 }
 
-
-
-
-const gameEngine = (() => {
-    const players = [Player('❌'), Player('⭕')];
-    let currentPlayer = 0;
-
-    const playRound = (index) => {
-        gameBoard.play(players[currentPlayer].getMark(), index);
-        currentPlayer = (currentPlayer + 1) % players.length;
-        displayController.announce(`Player ${currentPlayer + 1}'s turn`)
-        if (gameBoard.winState()) {
-            displayController.announce(`Player ${gameBoard.getWinner() + 1} wins!`)
-            displayController.disable();
-        }
-
-    }
-
-    const getPlayerMarks = () => {
-        return players.map(player => player.getMark());
-    }
-
-    const restart = () => {
-        gameBoard.wipe();
-        displayController.reset();
-    }
-
-    return {playRound, getPlayerMarks, restart}
-})();
-
 const displayController = (() => {
     let squares = document.querySelectorAll('.square');
     let announcer = document.querySelector('#announcer');
@@ -105,6 +75,7 @@ const displayController = (() => {
     const disable = () => squares.forEach(square => square.removeEventListener('click', chooseSquare));
 
     const reset = () => {
+        gameEngine.restart();
         updateBoard();
         disable();
         enable();
@@ -113,8 +84,36 @@ const displayController = (() => {
 
     const enable = () => squares.forEach(square => square.addEventListener('click', chooseSquare, {'once': true}));
 
-    restart.addEventListener('click', gameEngine.restart)
+    restart.addEventListener('click', reset)
     enable();
 
     return {updateBoard, announce, disable, reset}
+})();
+
+const gameEngine = (() => {
+    const players = [Player('❌'), Player('⭕')];
+    let currentPlayer = 0;
+    displayController.announce(`${players[currentPlayer].getMark()} Player ${currentPlayer+1}'s turn`)
+
+    const playRound = (index) => {
+        gameBoard.play(players[currentPlayer].getMark(), index);
+        if (gameBoard.winState()) {
+            displayController.announce(`${players[currentPlayer].getMark()} Player ${gameBoard.getWinner() + 1} wins!`)
+            displayController.disable();
+            return;
+        }
+        currentPlayer = (currentPlayer + 1) % players.length;
+        displayController.announce(`${players[currentPlayer].getMark()} Player ${currentPlayer+1}'s turn`)
+    }
+
+    const getPlayerMarks = () => {
+        return players.map(player => player.getMark());
+    }
+
+    const restart = () => {
+        currentPlayer = 0;
+        gameBoard.wipe();
+    }
+
+    return {playRound, getPlayerMarks, restart}
 })();

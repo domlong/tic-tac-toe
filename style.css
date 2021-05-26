@@ -1,12 +1,28 @@
 :root {
-    --border: #ff0a54;
+    --border: #FF477E;
     --body-background: #FAE0E4;
+    --text-color: #ff0a54;
+    --hover: #F9BEC7;
+}
 
-
+* {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
 }
 
 body {
     background-color: var(--body-background);
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+#centre-just-because {
+    margin: auto;
+    padding: 30px;
+    width: 500px;
 }
 
 #container {
@@ -15,24 +31,26 @@ body {
     grid-template-rows: repeat(3, 1fr);
     width: 500px;
     height: 500px;
-    margin: auto;
-    padding: 30px;
+    margin: -1px;
+    padding: 30px auto;
+    border: 3px solid var(--border);
 }
 
 .square {
-    border: 1px solid var(--border);
+    border: 4px solid var(--border);
     /* justify-self: center;
     align-self: center;
     width: 100%;
     height: 100%; */
+    margin: -1px;
     text-align: center;
     font-size: 130px;
     cursor: pointer;
+    padding-top: 10px;
 }
 
-#announcer {
-    text-align: center;
-    font-size: 30px;
+.square:hover {
+    background-color: var(--hover);
 }
 
 #results {
@@ -41,9 +59,22 @@ body {
     align-items: center;
     width: 30%;
     margin: auto;
+    color: var(--text-color);
+}
+
+#announcer {
+    text-align: center;
+    font-size: 30px;
+    font-size: 2em;
+    font-weight: bold;
 }
 
 #restart {
     margin: 20px;
-    width: 30%
+    width: 30%;
+    color: var(--text-color);
+    border-radius: 5px;
+    border: 3px solid var(--border);
+    font-size: 1.5em;
+    padding: 5px;
 }
