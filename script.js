@@ -15,20 +15,6 @@ const gameBoard = (() => {
     };
 
     const winState = () => {
-        // 3 in a row
-        // 012
-        // 345
-        // 678
-
-        // 3 column
-        // 036
-        // 147
-        // 258
-
-        // diagonal
-        // 048
-        // 246
-
         const winCondition = [
             [0,1,2],
             [3,4,5],
@@ -63,13 +49,19 @@ const Player =  (num, mark) => {
 const displayController = (() => {
     let squares = document.querySelectorAll('.square');
 
+    const chooseSquare = (e) => {
+        console.log(e.target.dataset.index);
+    }
+
     const markSquare = (mark, i) => {
         squares.item(i).textContent = mark;
     }
     
-    const updateBoard = (board) => {
-        board.getGrid().forEach(markSquare)
+    const updateBoard = () => {
+        gameBoard.getGrid().forEach(markSquare)
     }
+
+    squares.forEach(square => square.addEventListener('click', chooseSquare, {'once': true}))
 
     return {updateBoard}
 })();
@@ -78,6 +70,8 @@ const displayController = (() => {
 const gameEngine = (() => {
     const player1 = Player(1, 'X');
     const player2 = Player(2, 'O');
+    let currentPlayer = 1;
+
     gameBoard.play('X',4);
     gameBoard.play('O',5);
     gameBoard.play('X',1);
@@ -87,10 +81,11 @@ const gameEngine = (() => {
     gameBoard.play('X',7);
     gameBoard.play('O',8);
 
+    displayController.updateBoard();
 
-    // for(let i=0; i<9; i++){
-    //     gameBoard.getGrid()[i]=i;
-    // }
-    displayController.updateBoard(gameBoard);
-    console.log(gameBoard.winState());
+    const playRound = () => {
+        
+    }
+
+    return {}
 })();
