@@ -1,6 +1,6 @@
 const gameBoard = (() => {
     let grid = new Array(9);
-    let winner = 'test failed';
+    let winner;
 
     const play = (mark, i) => {
         if(!grid[i]) {
@@ -20,8 +20,11 @@ const gameBoard = (() => {
                 return true;
             }
         }
-        // return (str === 'XXX' || str === 'OOO');
     };
+
+    const wipe = () => {
+        grid.fill(undefined);
+    }
 
     const winState = () => {
         const winCondition = [
@@ -44,7 +47,7 @@ const gameBoard = (() => {
         return false;
     }
 
-    return {getWinner, getGrid, play, winState}
+    return {getWinner, getGrid, play, winState, wipe}
 })();
 
 const Player =  (mark) => {
@@ -53,52 +56,65 @@ const Player =  (mark) => {
     return {getMark}
 }
 
+
+
+
+const gameEngine = (() => {
+    const players = [Player('❌'), Player('⭕')];
+    let currentPlayer = 0;
+
+    const playRound = (index) => {
+        gameBoard.play(players[currentPlayer].getMark(), index);
+        currentPlayer = (currentPlayer + 1) % players.length;
+        displayController.announce(`Player ${currentPlayer + 1}'s turn`)
+        if (gameBoard.winState()) {
+            displayController.announce(`Player ${gameBoard.getWinner() + 1} wins!`)
+            displayController.disable();
+        }
+
+    }
+
+    const getPlayerMarks = () => {
+        return players.map(player => player.getMark());
+    }
+
+    const restart = () => {
+        gameBoard.wipe();
+        displayController.reset();
+    }
+
+    return {playRound, getPlayerMarks, restart}
+})();
+
 const displayController = (() => {
     let squares = document.querySelectorAll('.square');
-    let announcer = document.querySelector('#announcer')
+    let announcer = document.querySelector('#announcer');
+    let restart = document.querySelector('#restart');
 
     const chooseSquare = (e) => {
         gameEngine.playRound(e.target.dataset.index);
         updateBoard();
     }
 
-    const markSquare = (mark, i) => {
-        squares.item(i).textContent = mark;
-    }
+    const markSquare = (mark, i) => squares.item(i).textContent = mark;
     
-    const updateBoard = () => {
-        gameBoard.getGrid().forEach(markSquare)
+    const updateBoard = () => gameBoard.getGrid().forEach(markSquare);
+
+    const announce = (text) => announcer.textContent = text;
+
+    const disable = () => squares.forEach(square => square.removeEventListener('click', chooseSquare));
+
+    const reset = () => {
+        updateBoard();
+        disable();
+        enable();
+        announce(`Player 1's turn`);
     }
 
-    const announce = (text) => {
-        announcer.textContent = text;
-    }
+    const enable = () => squares.forEach(square => square.addEventListener('click', chooseSquare, {'once': true}));
 
-    squares.forEach(square => square.addEventListener('click', chooseSquare, {'once': true}))
+    restart.addEventListener('click', gameEngine.restart)
+    enable();
 
-    return {updateBoard, announce}
-})();
-
-
-const gameEngine = (() => {
-    const players = [Player('X'), Player('O')];
-    let currentPlayer = 0;
-
-    const playRound = (index) => {
-        gameBoard.play(players[currentPlayer].getMark(), index);
-        currentPlayer = (currentPlayer + 1) % players.length;
-        if (gameBoard.winState()) {
-            displayController.announce(`Player ${gameBoard.getWinner() + 1} wins!`)
-        }
-    }
-
-    // const getPlayerByMark = (mark) => {
-    //     return players.findIndex(mark);
-    // }
-
-    const getPlayerMarks = () => {
-        return players.map(player => player.getMark());
-    }
-
-    return {playRound, getPlayerMarks}
+    return {updateBoard, announce, disable, reset}
 })();
