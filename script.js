@@ -91,7 +91,7 @@ const displayController = (() => {
 })();
 
 const gameEngine = (() => {
-    const players = [Player('❌'), Player('⭕')];
+    const players = [Player('X'), Player('O')];
     let currentPlayer = 0;
     displayController.announce(`${players[currentPlayer].getMark()} Player ${currentPlayer+1}'s turn`)
 
